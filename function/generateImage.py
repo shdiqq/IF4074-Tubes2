@@ -23,5 +23,6 @@ def generateImage() :
 		ListClassLabel.append(imageLabel(fileP))
 
 	listImageMatrix = np.array(ListImageInput, dtype="object")
+	listClassLabelMatrix = np.array(ListClassLabel, dtype="object")
 
-	return (listImageMatrix, ListClassLabel)
+	return (listImageMatrix, listClassLabelMatrix)

@@ -2,17 +2,28 @@ import numpy as np
 
 # ACTIVATION FUNCTION
 
-def sigmoid(net: float, derivative: bool = False) -> float:
+def linear(net: np.ndarray, derivative: bool = False):
 	if (derivative) :
-		return ( (1 / (1 + np.exp(-net)) ) * ( 1 - (1 / (1 + np.exp(-net))) ) )
+		return (np.full((net.shape), 1))
 	else :
+		return (net)
+
+def sigmoid(net: np.ndarray, derivative: bool = False):
+	if (derivative) :
+		s = sigmoid(net)
+		return (s * (1 - s))
+	else :
+		net = np.clip(net, -500, 500)
 		return ( 1 / (1 + np.exp(-net) ) )
 
-def relu(net: float, derivative: bool = False) -> float:
+def relu(net: np.ndarray, derivative: bool = False):
 	if (derivative) :
-		if ( net  < 0 ) :
-			return(0)
-		else :
-			return(1)
+		return (net > 0).astype(float)
 	else :
 		return (np.maximum(0, net))
+
+# def softmax(net: float, target: int/float =, derivative: bool = False) -> float:
+# 	if (derivative) :
+# 		return (np.exp(net) / sigma) * (1 - (np.exp(net) / sigma))
+# 	else :
+# 		return lambda x: np.exp(x - np.max(net)) / np.sum(np.exp(x - np.max(net)))
