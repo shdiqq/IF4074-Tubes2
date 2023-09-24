@@ -1,4 +1,5 @@
 from function.generateImage import *
+from function.toCategorilcal import *
 
 import os
 import sys
@@ -26,6 +27,7 @@ if __name__ == "__main__":
     1: 'panda'
   }
   dataInput, dataInputLabel = generateImage()
+  dataInputLabel = toCategorical(dataInputLabel, 1)
 
   cnn = CNN()
   cnn.addLayer(ConvolutionalLayer(inputSize=dataInput[0].shape, filterSize = 4, numFilter = 3, mode = 'max', padding = 0, stride = 4))
@@ -37,5 +39,28 @@ if __name__ == "__main__":
   cnn.addLayer(DenseLayer(numUnit = 25, activationFunctionName = 'relu'))
   cnn.addLayer(DenseLayer(numUnit = 5, activationFunctionName = 'relu'))
   cnn.addLayer(DenseLayer(numUnit = 1, activationFunctionName = 'sigmoid'))
-  dataOutputLabel = cnn.predict(dataInput)
-  print("The final accuracy score is", accuracy(dataInputLabel, dataOutputLabel))
+  """ Can't be used yet
+  # dataOutputLabel = cnn.predict(features=dataInput, target=dataInputLabel, batchSize=5, epoch=10, learningRate=0.5)
+  # print("The final accuracy score is", accuracy(dataInputLabel, dataOutputLabel))
+  """
+  # Backward propagation experiment
+  print("Proses forward propagation")
+  output = cnn.forward(dataInput[0])
+  print(f"Nilai output yang diperoleh dari forward propagation = {output}")
+  print(f"Nilai target = {dataInputLabel[0]}")
+  loss = cnn.calculateLoss(output, dataInputLabel[0])
+  print(f"Nilai loss = {loss}")
+  derivativeError = cnn.calculateDerivativeError(output, dataInputLabel[0])
+  print(f"Nilai derivativeError = {derivativeError}")
+  print("=====")
+  print("Proses backward propagation")
+  layerDelta = cnn.layers[-1].backward(dataInput[0], derivativeError)
+  print(f"Nilai delta pada layer ini adalah {layerDelta}")
+  layerDelta = cnn.layers[-2].backward(dataInput[0], derivativeError)
+  print(f"Nilai delta pada layer ini adalah {layerDelta}")
+  # layerDelta = cnn.layers[-3].backward(dataInput[0], derivativeError)
+  # print(f"Nilai delta pada layer ini adalah {layerDelta}")
+  # layerDelta = cnn.layers[-4].backward(dataInput[0], derivativeError)
+  # print(f"Nilai delta pada layer ini adalah {layerDelta}")
+  # layerDelta = cnn.layers[-5].backward(dataInput[0], derivativeError)
+  # print(f"Nilai delta pada layer ini adalah {layerDelta}")
