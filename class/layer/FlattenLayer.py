@@ -2,36 +2,36 @@ import numpy as np
 
 class FlattenLayer():
   def __init__(self):
-    pass
+    self.depth = None
+    self.weight = None
+    self.height = None
 
   def forward(self, inputData):
+    self.height, self.weight, self.depth = inputData.shape
     return np.ravel(inputData)
+
+  def backward(self, dError_dOutput):
+    return dError_dOutput.reshape(self.height, self.weight, self.depth)
+
+  def updateWeightBias(self, learningRate, momentum): 
+    pass
 
 ### TESTING ###
 if __name__ == "__main__":
-  matrix = np.array(
+  inputData = np.array(
     [
       [
-        [
-          [1,11,2],
-          [1,10,4],
-          [6,12,8],
-        ],
-        [
-          [7,1,2],
-          [5,-1,2],
-          [7,-4,2],
-        ],
-        [
-          [-2,23,2],
-          [2,20,4],
-          [8,6,6],
-        ]
+        [1, 2], 
+        [3, 4]
+      ], 
+      [
+        [5, 6], 
+        [7, 8]
       ]
     ]
   )
-  print(matrix[0].shape)
-  print("=====")
   flattenLayer = FlattenLayer()
-  newMatrix = flattenLayer.forward(matrix[0])
-  print(len(newMatrix))
+  newMatrix = flattenLayer.forward(inputData)
+  dE_dO = np.array([1, 2, 3, 4, 5, 6, 7, 8])
+  originalData = flattenLayer.backward(dE_dO)
+  print(inputData == originalData)
