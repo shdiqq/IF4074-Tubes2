@@ -25,9 +25,9 @@ class ConvolutionalLayer():
   def backward(self, dError_dOutput):
     delta_pooling = self.poolingStage.backward(dError_dOutput)
     # TODO
-    # delta_detector = self.detectorStage.backward(delta_pooling)
-    # delta_convolutional = self.convolutionStage.backward(delta_detector)
-    # return delta_convolutional
+    delta_detector = self.detectorStage.backward(delta_pooling)
+    delta_filter, delta_convolutional = self.convolutionStage.backward(delta_detector)
+    return delta_filter, delta_convolutional
   
 ### TESTING ###
 if __name__ == "__main__":
@@ -61,3 +61,16 @@ if __name__ == "__main__":
   convolutionalLayer2 = ConvolutionalLayer(filterSize = 2, numFilter = 4, mode='max', padding = 0, stride = 1)
   newMatrix1 = convolutionalLayer2.forward(newMatrix)
   print(newMatrix1.shape)
+  print("=====")
+  dE_dO = np.array(
+    [
+      [
+        [ 12, 12, 12 ],
+        [ 12, 12, 12 ],
+      ],
+      [
+        [ 12, 12, 12 ],
+        [ 12, 12, 12 ],
+      ],
+    ]
+  )
