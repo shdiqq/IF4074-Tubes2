@@ -80,7 +80,8 @@ if __name__ == "__main__":
     y_train, y_test = dataInputLabel[train_index], dataInputLabel[test_index]
 
     cnnKfold = CNN()
-    cnnKfold.loadModel("model3")
+    print("Membaca (load) model dari file eksternal (model3.json)")
+    cnnKfold.loadModel('model3')
 
     output = np.array([])
     for data in X_test:
