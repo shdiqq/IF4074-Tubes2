@@ -21,9 +21,3 @@ def relu(net: np.ndarray, derivative: bool = False):
 		return (net > 0).astype(float)
 	else :
 		return (np.maximum(0, net))
-
-# def softmax(net: float, target: int/float =, derivative: bool = False) -> float:
-# 	if (derivative) :
-# 		return (np.exp(net) / sigma) * (1 - (np.exp(net) / sigma))
-# 	else :
-# 		return lambda x: np.exp(x - np.max(net)) / np.sum(np.exp(x - np.max(net)))

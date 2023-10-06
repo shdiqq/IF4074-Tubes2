@@ -27,18 +27,20 @@ if __name__ == "__main__":
   X_train, X_test, y_train, y_test = train_test_split(dataInput, dataInputLabel, test_size=0.1)
 
   cnn = CNN()
-  # cnn.loadModel('model2')
-  # # cnn.addLayer(ConvolutionalLayer(inputSize=dataInput[0].shape, filterSize = 4, numFilter = 3, mode = 'max', padding = 0, stride = 4))
-  # # cnn.addLayer(ConvolutionalLayer(filterSize = 4, numFilter = 6, mode = 'average', padding = 0, stride = 1))
-  # # cnn.addLayer(FlattenLayer())
-  # # cnn.addLayer(DenseLayer(numUnit = 300, activationFunctionName = 'relu'))
-  # # cnn.addLayer(DenseLayer(numUnit = 150, activationFunctionName = 'relu'))
-  # # cnn.addLayer(DenseLayer(numUnit = 50, activationFunctionName = 'relu'))
-  # # cnn.addLayer(DenseLayer(numUnit = 25, activationFunctionName = 'relu'))
-  # # cnn.addLayer(DenseLayer(numUnit = 5, activationFunctionName = 'relu'))
-  # # cnn.addLayer(DenseLayer(numUnit = 1, activationFunctionName = 'sigmoid'))
+  cnn.addLayer(ConvolutionalLayer(inputSize=dataInput[0].shape, filterSize = 4, numFilter = 3, mode = 'max', padding = 0, stride = 4))
+  cnn.addLayer(ConvolutionalLayer(filterSize = 4, numFilter = 6, mode = 'average', padding = 0, stride = 1))
+  cnn.addLayer(FlattenLayer())
+  cnn.addLayer(DenseLayer(numUnit = 300, activationFunctionName = 'relu'))
+  cnn.addLayer(DenseLayer(numUnit = 150, activationFunctionName = 'relu'))
+  cnn.addLayer(DenseLayer(numUnit = 50, activationFunctionName = 'relu'))
+  cnn.addLayer(DenseLayer(numUnit = 25, activationFunctionName = 'relu'))
+  cnn.addLayer(DenseLayer(numUnit = 5, activationFunctionName = 'relu'))
+  cnn.addLayer(DenseLayer(numUnit = 1, activationFunctionName = 'sigmoid'))
 
-  # cnn.predict(features = X_train, target = y_train, batchSize = 5, epoch = 10, learningRate = 0.5)
+  cnn.predict(features = X_train, target = y_train, batchSize = 5, epoch = 10, learningRate = 0.5)
+
+  print("Menyimpan model hasil pembelajaran skema full training ke file eksternal dalam format JSON (model3.json)")
+  cnn.saveModel("model3")
 
   output = np.array([])
   for data in X_test:
@@ -63,16 +65,8 @@ if __name__ == "__main__":
     y_train, y_test = dataInputLabel[train_index], dataInputLabel[test_index]
 
     cnnKfold = CNN()
-    cnnKfold.addLayer(ConvolutionalLayer(inputSize=dataInput[0].shape, filterSize = 4, numFilter = 3, mode = 'max', padding = 0, stride = 4))
-    cnnKfold.addLayer(ConvolutionalLayer(filterSize = 4, numFilter = 6, mode = 'average', padding = 0, stride = 1))
-    cnnKfold.addLayer(FlattenLayer())
-    cnnKfold.addLayer(DenseLayer(numUnit = 300, activationFunctionName = 'relu'))
-    cnnKfold.addLayer(DenseLayer(numUnit = 150, activationFunctionName = 'relu'))
-    cnnKfold.addLayer(DenseLayer(numUnit = 50, activationFunctionName = 'relu'))
-    cnnKfold.addLayer(DenseLayer(numUnit = 25, activationFunctionName = 'relu'))
-    cnnKfold.addLayer(DenseLayer(numUnit = 5, activationFunctionName = 'relu'))
-    cnnKfold.addLayer(DenseLayer(numUnit = 1, activationFunctionName = 'sigmoid'))
-    cnnKfold.predict(features = X_train, target = y_train, batchSize = 5, epoch = 3, learningRate = 0.1)
+    print("Membaca (load) model dari file eksternal (model3.json)")
+    cnnKfold.loadModel('model3')
 
     output = np.array([])
     for data in X_test:
@@ -87,4 +81,3 @@ if __name__ == "__main__":
     i = i + 1
         
   print("\nBest Accuracy:", best_accuracy)
-
