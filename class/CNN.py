@@ -69,29 +69,29 @@ class CNN():
       print("Epoch ke-", i + 1)
       sumLoss = 0
       for j in range(batchSize):
-        if (j + 1) % 5 == 0:
-            print("Batch size ke- 5")
-        else:
-          print("Batch size ke-", (j + 1) % batchSize)
+        # if (j + 1) % 5 == 0:
+        #     print("Batch size ke- 5")
+        # else:
+        #   print("Batch size ke-", (j + 1) % batchSize)
         currentIndex = (batchSize * i + j) % len(features)
-        print("Proses forward propagation")
+        # print("Proses forward propagation")
         output = self.forward(features[currentIndex])
         labelOutput = np.rint(np.append(labelOutput, output))
         labelTarget = np.append(labelTarget, target[currentIndex])
         sumLoss += self.calculateLoss(output, target[currentIndex])
 
-        print("Proses backward propagation")
+        # print("Proses backward propagation")
         derivativeError = self.calculateDerivativeError(output, target[currentIndex])
         derivativeError = self.backward(derivativeError)
 
-      print("Proses update weight")
+      # print("Proses update weight")
       self.updateWeightBias(learningRate, momentum)
 
       avgLoss = sumLoss/len(features)
       print('Nilai Loss adalah ', avgLoss)
       print("Output yang diperoleh ", labelOutput)
       print("Target yang diharapkan ", labelTarget)
-      print('Nilai Accuracy akurasi adalah ', metrics.accuracy_score(labelTarget, labelOutput))
+      print('Nilai Akurasi adalah ', metrics.accuracy_score(labelTarget, labelOutput))
 
 
 ### TESTING ###
