@@ -66,8 +66,9 @@ class CNN():
     labelOutput = np.array([])
     labelTarget = np.array([])
 
+    print("  Epoch   |     Loss    |   Accuracy   |      Output -> Target")
+    print("=========================================================================================")
     for i in range(epoch):
-      print("Epoch ke-", i + 1)
       sumLoss = 0
       for j in range(batchSize):
         # if (j + 1) % 5 == 0:
@@ -89,10 +90,9 @@ class CNN():
       self.updateWeightBias(learningRate, momentum)
 
       avgLoss = sumLoss/len(features)
-      print('Nilai Loss adalah ', avgLoss)
-      print("Output yang diperoleh ", labelOutput)
-      print("Target yang diharapkan ", labelTarget)
-      print('Nilai Akurasi adalah ', metrics.accuracy_score(labelTarget, labelOutput))
+
+      print(f"    {i+1}     |   {avgLoss:.5f}   |     {metrics.accuracy_score(labelTarget, labelOutput):.2f}     |   {labelOutput}  ->  {labelTarget}   ")
+      print("-----------------------------------------------------------------------------------------")
 
   def saveModel(self, filename):
     file = open(f'./model/{filename}.json', 'w')
