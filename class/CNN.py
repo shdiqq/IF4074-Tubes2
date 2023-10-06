@@ -1,6 +1,7 @@
 import os
 import sys
 import numpy as np
+from sklearn import metrics
 
 script_dir = os.path.dirname(__file__)
 mymodule_dir = os.path.join(script_dir, '..', 'function')
@@ -31,18 +32,22 @@ class CNN():
         deltaError = self.layers[i].backward(deltaError)
     return deltaError
   
+  def updateWeightBias(self, learningRate, momentum):
+    for i in reversed(range(len(self.layers))):
+      self.layers[i].updateWeightBias(learningRate, momentum)
+  
   def calculateLoss(self, output, target):
     if (self.layers[-1].activationFunctionName.lower() == 'softmax') :
       if (len(target) == 1):
         loss = crossEntropy(target[0], output[0])
       else :
-        index = target.index(1)
+        index = np.where(target == 1)[0][0]
         loss = crossEntropy(target[index], output[index])
     else :
       if (len(target) == 1):
         loss = sse(target[0], output[0])
       else :
-        index = target.index(1)
+        index = np.where(target == 1)[0][0] 
         loss = sse(target[index], output[index])
     return loss
   
@@ -56,21 +61,37 @@ class CNN():
         derivativeError.append(sse(target[i], output[i], derivative=True))
     return derivativeError
 
-  def predict(self, features, target, batchSize, epoch, learningRate, momentum=1): # Can't be used yet
-    labelOutput = []
-    labelTarget = []
+  def predict(self, features, target, batchSize, epoch, learningRate, momentum=1):
+    labelOutput = np.array([])
+    labelTarget = np.array([])
+
     for i in range(epoch):
-      print("Epoch: ", i+1)
+      print("Epoch ke-", i + 1)
       sumLoss = 0
-      for j in range(len(features)):
+      for j in range(batchSize):
+        if (j + 1) % 5 == 0:
+            print("Batch size ke- 5")
+        else:
+          print("Batch size ke-", (j + 1) % batchSize)
+        currentIndex = (batchSize * i + j) % len(features)
         print("Proses forward propagation")
-        output = self.forward(features[j])
-        sumLoss += self.calculateLoss(output, target[j])
-        deltaError = np.array([target[j] - output[0]]) * -1
+        output = self.forward(features[currentIndex])
+        labelOutput = np.rint(np.append(labelOutput, output))
+        labelTarget = np.append(labelTarget, target[currentIndex])
+        sumLoss += self.calculateLoss(output, target[currentIndex])
+
         print("Proses backward propagation")
-        deltaError = self.backward(deltaError)
-        print("Proses update weight")
-    return(labelOutput)
+        derivativeError = self.calculateDerivativeError(output, target[currentIndex])
+        derivativeError = self.backward(derivativeError)
+
+      print("Proses update weight")
+      self.updateWeightBias(learningRate, momentum)
+
+      avgLoss = sumLoss/len(features)
+      print('Nilai Loss adalah ', avgLoss)
+      print("Output yang diperoleh ", labelOutput)
+      print("Target yang diharapkan ", labelTarget)
+      print('Nilai Accuracy akurasi adalah ', metrics.accuracy_score(labelTarget, labelOutput))
 
 
 ### TESTING ###

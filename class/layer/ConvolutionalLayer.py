@@ -24,10 +24,12 @@ class ConvolutionalLayer():
   
   def backward(self, dError_dOutput):
     delta_pooling = self.poolingStage.backward(dError_dOutput)
-    # TODO
     delta_detector = self.detectorStage.backward(delta_pooling)
-    delta_filter, delta_convolutional = self.convolutionStage.backward(delta_detector)
-    return delta_filter, delta_convolutional
+    delta_convolutional = self.convolutionStage.backward(delta_detector)
+    return delta_convolutional
+  
+  def updateWeightBias(self, learningRate, momentum):
+    self.convolutionStage.updateKernelBias(learningRate, momentum)
   
 ### TESTING ###
 if __name__ == "__main__":

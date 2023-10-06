@@ -14,21 +14,19 @@ class DenseLayer():
     self.activationFunctionName = activationFunctionName
     self.weight = weight
     self.deltaWeight = None
-    self.bias = np.zeros((numUnit,))
+    self.bias = None
     self.deltaBias = None
+    self.inputData = None
     self.output = None
-    self.input = None
 
   def forward(self, inputData):
-    self.input = inputData
+    self.inputData = inputData
     numFeatures = np.prod(inputData.shape)
 
     if (self.weight is None) :
       self.weight = np.random.randn(numFeatures, self.numUnit)
-    if (self.deltaWeight is None) :
-      self.deltaWeight = np.zeros(self.weight.shape)
-    if (self.deltaBias is None) :
-      self.deltaBias = np.zeros((self.numUnit,))
+    if (self.bias is None) :
+      self.bias = np.zeros((self.numUnit,))
 
     output = np.dot(inputData, self.weight) + self.bias
     if (self.activationFunctionName.lower() == 'relu'):
@@ -44,6 +42,11 @@ class DenseLayer():
     return output
   
   def backward(self, dError_dOutput):
+    if (self.deltaWeight is None) :
+      self.deltaWeight = np.zeros(self.weight.shape)
+    if (self.deltaBias is None) :
+      self.deltaBias = np.zeros((self.numUnit,))
+
     if (self.activationFunctionName.lower() == 'relu'):
       dOutput_dNet = relu(self.output, derivative=True)
     elif (self.activationFunctionName.lower() == 'sigmoid'):
@@ -56,21 +59,19 @@ class DenseLayer():
     deltaError = dError_dOutput * dOutput_dNet
 
     for i in range (len(self.deltaWeight)):
-      self.deltaWeight[i] += self.input[i] * deltaError
+      self.deltaWeight[i] += self.inputData[i] * deltaError
     self.deltaBias += deltaError
 
     dError_dOutputBeforeLayer = np.dot(deltaError, self.weight.T)
     return dError_dOutputBeforeLayer
 
-  def resetDelta(self):
-    self.deltaWeight = None
-    self.deltaBias = None
-
   def updateWeightBias(self, learningRate, momentum):
     for i in range (len(self.weight)):
-      self.weight[i][0] = self.weight[0] - ( (momentum * self.weight[i][0]) + (learningRate * self.deltaWeight[i][0] * self.input[i]) )
+      self.weight[i] = self.weight[i] - ( (momentum * self.weight[i]) + (learningRate * self.deltaWeight[i] * self.inputData[i]) )
     self.bias = self.bias - ( (momentum * self.bias) + (learningRate * self.deltaBias) )
-    self.resetDelta()
+
+    self.deltaWeight = None
+    self.deltaBias = None
 
 ### TESTING ###
 if __name__ == "__main__":
@@ -81,3 +82,4 @@ if __name__ == "__main__":
   dE_dOBeforeLayer = denseLayer.backward(dE_dO)
   expectedOutput = [[7.99E-02, 2.397E-01]]
   print(dE_dOBeforeLayer == expectedOutput)
+  denseLayer.updateWeightBias(0.1, 1)
