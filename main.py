@@ -1,7 +1,7 @@
 from sklearn import metrics
 from sklearn.model_selection import train_test_split, KFold
 from function.generateImage import *
-from function.toCategorilcal import *
+from function.toCategorical import *
 
 import os
 import sys
@@ -27,17 +27,18 @@ if __name__ == "__main__":
   X_train, X_test, y_train, y_test = train_test_split(dataInput, dataInputLabel, test_size=0.1)
 
   cnn = CNN()
-  cnn.addLayer(ConvolutionalLayer(inputSize=dataInput[0].shape, filterSize = 4, numFilter = 3, mode = 'max', padding = 0, stride = 4))
-  cnn.addLayer(ConvolutionalLayer(filterSize = 4, numFilter = 6, mode = 'average', padding = 0, stride = 1))
-  cnn.addLayer(FlattenLayer())
-  cnn.addLayer(DenseLayer(numUnit = 300, activationFunctionName = 'relu'))
-  cnn.addLayer(DenseLayer(numUnit = 150, activationFunctionName = 'relu'))
-  cnn.addLayer(DenseLayer(numUnit = 50, activationFunctionName = 'relu'))
-  cnn.addLayer(DenseLayer(numUnit = 25, activationFunctionName = 'relu'))
-  cnn.addLayer(DenseLayer(numUnit = 5, activationFunctionName = 'relu'))
-  cnn.addLayer(DenseLayer(numUnit = 1, activationFunctionName = 'sigmoid'))
+  # cnn.loadModel('model2')
+  # # cnn.addLayer(ConvolutionalLayer(inputSize=dataInput[0].shape, filterSize = 4, numFilter = 3, mode = 'max', padding = 0, stride = 4))
+  # # cnn.addLayer(ConvolutionalLayer(filterSize = 4, numFilter = 6, mode = 'average', padding = 0, stride = 1))
+  # # cnn.addLayer(FlattenLayer())
+  # # cnn.addLayer(DenseLayer(numUnit = 300, activationFunctionName = 'relu'))
+  # # cnn.addLayer(DenseLayer(numUnit = 150, activationFunctionName = 'relu'))
+  # # cnn.addLayer(DenseLayer(numUnit = 50, activationFunctionName = 'relu'))
+  # # cnn.addLayer(DenseLayer(numUnit = 25, activationFunctionName = 'relu'))
+  # # cnn.addLayer(DenseLayer(numUnit = 5, activationFunctionName = 'relu'))
+  # # cnn.addLayer(DenseLayer(numUnit = 1, activationFunctionName = 'sigmoid'))
 
-  cnn.predict(features = X_train, target = y_train, batchSize = 5, epoch = 10, learningRate = 0.5)
+  # cnn.predict(features = X_train, target = y_train, batchSize = 5, epoch = 10, learningRate = 0.5)
 
   output = np.array([])
   for data in X_test:
@@ -86,3 +87,4 @@ if __name__ == "__main__":
     i = i + 1
         
   print("\nBest Accuracy:", best_accuracy)
+

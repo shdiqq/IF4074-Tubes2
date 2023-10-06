@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import numpy as np
 from sklearn import metrics
 
@@ -93,6 +94,41 @@ class CNN():
       print("Target yang diharapkan ", labelTarget)
       print('Nilai Akurasi adalah ', metrics.accuracy_score(labelTarget, labelOutput))
 
+  def saveModel(self, filename):
+    file = open(f'./model/{filename}.json', 'w')
+    data = []
+
+    for i in range(len(self.layers)):
+      data += self.layers[i].getData()
+
+    file.write(json.dumps(data, indent=2))
+    file.close()
+
+  def loadModel(self, filename):
+    file = open(f'./model/{filename}.json', 'r')
+    data = json.loads(file.read())
+
+    for i in range(len(data)):
+      if (data[i]['type'] == 'convolutional'):
+        self.addLayer(ConvolutionalLayer(
+          filterSize = data[i]['params']['filterSize'],
+          numFilter = data[i]['params']['numFilter'],
+          mode = data[i]['params']['mode'],
+          padding = data[i]['params']['padding'],
+          stride = data[i]['params']['stride'],
+          kernel = np.array(data[i]['params']['kernel']),
+          bias = np.array(data[i]['params']['bias'])
+        ))
+      elif (data[i]['type'] == 'flatten'):
+        self.addLayer(FlattenLayer())
+      elif (data[i]['type'] == 'dense'):
+        self.addLayer(DenseLayer(
+          numUnit = data[i]['params']['numUnit'],
+          activationFunctionName = data[i]['params']['activationFunctionName'],
+          weight = np.array(data[i]['params']['weight']),
+          bias = np.array(data[i]['params']['bias'])
+        ))
+    file.close()
 
 ### TESTING ###
 if __name__ == "__main__":

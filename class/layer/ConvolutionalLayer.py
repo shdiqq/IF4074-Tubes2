@@ -11,8 +11,14 @@ from DetectorStage import DetectorStage
 from PoolingStage import PoolingStage
 
 class ConvolutionalLayer():
-  def __init__(self, filterSize, numFilter, mode, padding = 0, stride = 1, inputSize = None):
-    self.convolutionStage = ConvolutionalStage(filterSize, numFilter, padding, stride, inputSize)
+  def __init__(self, filterSize, numFilter, mode, padding = 0, stride = 1, inputSize = None, kernel = None, bias = None):
+    self.filterSize = filterSize
+    self.numFilter = numFilter
+    self.mode = mode
+    self.padding = padding
+    self.stride = stride
+    self.inputSize = inputSize
+    self.convolutionStage = ConvolutionalStage(filterSize, numFilter, padding, stride, inputSize, kernel, bias)
     self.detectorStage = DetectorStage()
     self.poolingStage = PoolingStage(filterSize, stride, mode)
 
@@ -30,6 +36,32 @@ class ConvolutionalLayer():
   
   def updateWeightBias(self, learningRate, momentum):
     self.convolutionStage.updateKernelBias(learningRate, momentum)
+
+  def getData(self):
+    pooling_stage = "max_pooling" if self.mode == "max" else "average_pooling" 
+    return [
+      {
+        'type': 'convolutional',
+        'params': {
+          'filterSize': self.filterSize,
+          'numFilter': self.numFilter,
+          'padding': self.padding,
+          'stride': self.stride,
+          'inputSize': self.inputSize,
+          'kernel': self.convolutionStage.kernel.tolist(),
+          'bias': self.convolutionStage.bias.tolist(),
+          'mode': self.mode
+        }
+      },
+      {
+        'type': pooling_stage,
+        'params': {
+          'filterSize': self.filterSize,
+          'stride': self.stride,
+          'mode': self.mode
+        }
+      }
+    ]
   
 ### TESTING ###
 if __name__ == "__main__":

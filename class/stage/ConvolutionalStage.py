@@ -9,15 +9,15 @@ sys.path.append(mymodule_dir)
 from spatialSize import spatialSize
 
 class ConvolutionalStage():
-  def __init__(self, filterSize, numFilter, padding = 0, stride = 1, inputSize = None):
+  def __init__(self, filterSize, numFilter, padding = 0, stride = 1, inputSize = None, kernel = None, bias = None):
     self.inputSize = inputSize
     self.filterSize = filterSize
     self.numFilter = numFilter
     self.padding = padding
     self.stride = stride
-    self.kernel = None
+    self.kernel = kernel
     self.deltaKernel = None
-    self.bias = None
+    self.bias = bias
     self.deltaBias = None
     self.inputData = None
 

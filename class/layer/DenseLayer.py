@@ -9,12 +9,12 @@ sys.path.append(mymodule_dir)
 from activation import relu, sigmoid, linear
 
 class DenseLayer():
-  def __init__(self, numUnit, activationFunctionName, weight = None):
+  def __init__(self, numUnit, activationFunctionName, weight = None, bias = None):
     self.numUnit = numUnit
     self.activationFunctionName = activationFunctionName
     self.weight = weight
     self.deltaWeight = None
-    self.bias = None
+    self.bias = bias
     self.deltaBias = None
     self.inputData = None
     self.output = None
@@ -72,6 +72,19 @@ class DenseLayer():
 
     self.deltaWeight = None
     self.deltaBias = None
+  
+  def getData(self):
+    return [
+      {
+        'type': 'dense',
+        'params': {
+          'numUnit': self.numUnit,
+          'activationFunctionName': self.activationFunctionName,
+          'weight': self.weight.tolist(),
+          'bias': self.bias.tolist()
+        }
+      }
+    ]
 
 ### TESTING ###
 if __name__ == "__main__":

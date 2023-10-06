@@ -16,6 +16,14 @@ class FlattenLayer():
   def updateWeightBias(self, learningRate, momentum): 
     pass
 
+  def getData(self):
+    return [
+      {
+        'type': 'flatten',
+        'params': {}
+      }
+    ]
+
 ### TESTING ###
 if __name__ == "__main__":
   inputData = np.array(
