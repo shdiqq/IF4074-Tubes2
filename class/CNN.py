@@ -71,22 +71,18 @@ class CNN():
     for i in range(epoch):
       sumLoss = 0
       for j in range(batchSize):
-        # if (j + 1) % 5 == 0:
-        #     print("Batch size ke- 5")
-        # else:
-        #   print("Batch size ke-", (j + 1) % batchSize)
         currentIndex = (batchSize * i + j) % len(features)
-        # print("Proses forward propagation")
+        # Proses Forward Propagation
         output = self.forward(features[currentIndex])
         labelOutput = np.rint(np.append(labelOutput, output))
         labelTarget = np.append(labelTarget, target[currentIndex])
         sumLoss += self.calculateLoss(output, target[currentIndex])
 
-        # print("Proses backward propagation")
+        # Proses Backward Propagation
         derivativeError = self.calculateDerivativeError(output, target[currentIndex])
         derivativeError = self.backward(derivativeError)
 
-      # print("Proses update weight")
+      # Proses Update Weight dan Bias
       self.updateWeightBias(learningRate, momentum)
 
       avgLoss = sumLoss/len(features)

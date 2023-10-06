@@ -80,7 +80,7 @@ if __name__ == "__main__":
     y_train, y_test = dataInputLabel[train_index], dataInputLabel[test_index]
 
     cnnKfold = CNN()
-    print("Membaca (load) model dari file eksternal (model3.json)")
+    print("Reading (load) model from external file (model3.json)")
     cnnKfold.loadModel('model3')
 
     output = np.array([])
@@ -88,7 +88,7 @@ if __name__ == "__main__":
         forward_cnn = cnnKfold.forward(data)
         output = np.append(output, np.rint(forward_cnn))
     
-    cnn.predict(features = X_train, target = y_train, batchSize = 5, epoch = 10, learningRate = 0.5)
+    cnnKfold.predict(features = X_train, target = y_train, batchSize = 5, epoch = 10, learningRate = 0.5)
     accuracy = metrics.accuracy_score(y_test, output)
     print("\nAccuracy:", accuracy)
     print("Confusion matrix:\n", metrics.confusion_matrix(y_test, output), "\n")
