@@ -26,6 +26,7 @@ class Sequential():
     output = dataInput
     for i in range(len(self.layers)) :
       output = self.layers[i].forward(output)
+    print(output)
     return(output)
   
   def backward(self, dError):

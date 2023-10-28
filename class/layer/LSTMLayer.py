@@ -11,8 +11,8 @@ from activation import sigmoid
 class LSTMParameter:
   def __init__(self, inputSize):
     self.u = np.random.rand(inputSize)
-    self.w = np.random.rand(1)
-    self.b = np.random.rand(1)
+    self.w = np.random.rand(inputSize)
+    self.b = np.random.rand(inputSize)
 
 class LSTMLayer():
   def __init__(self, inputSize, nCells, U=None, W=None, b=None):
@@ -20,17 +20,26 @@ class LSTMLayer():
     self.inputSize = inputSize
     self.nCells = nCells
 
-    self.cellPrev = np.zeros((nCells+1, 1))
-    self.hiddenPrev = np.zeros((nCells+1, 1))
+    print("Data di LSTM Layer")
+    print(self.inputData)
+    print(self.inputSize)
+    self.cellPrev = np.zeros((nCells+1, inputSize))
+    print(self.cellPrev)
+    self.hiddenPrev = np.zeros((nCells+1, inputSize))
 
     # 4 gate param
     self.forgetParam = LSTMParameter(self.inputSize)
+    print("Forget Param:", self.forgetParam.u, self.forgetParam.w, self.forgetParam.b)
     self.inputParam = LSTMParameter(self.inputSize)
     self.cellParam = LSTMParameter(self.inputSize)
     self.outputParam = LSTMParameter(self.inputSize)
 
   def forgetGate(self, timestep):
     # sigmoid(inputData * Uf + hiddenPrev * Wf + Bf)
+    print("Forget Param:", self.forgetParam.u, self.forgetParam.w, self.forgetParam.b)
+    print("Input Data:", self.inputData[timestep])
+    print("len Input Data:", len(self.inputData[timestep]))
+    print("Hidden Prev:", self.hiddenPrev[timestep])
     net_f = np.dot(self.forgetParam.u, self.inputData[timestep]) + np.dot(self.forgetParam.w, self.hiddenPrev[timestep]) + self.forgetParam.b
     ft = sigmoid(net_f)
     #print(f"ft={ft}")
@@ -71,8 +80,10 @@ class LSTMLayer():
       ct = self.cellState(i, ft, it, candidate_t)
       ht = self.outputGate(i, ct)
 
+      print(ct)
       self.cellPrev[i+1] = ct
-      #print(f"ct = {self.cellPrev[i+1]}")
+    #   print(self.cellPrev[i+1])
+    #   print(f"ct = {self.cellPrev[i+1]}")
       self.hiddenPrev[i+1] = ht
       #print(f"ht = {self.hiddenPrev[i+1]}")
     
@@ -81,12 +92,24 @@ class LSTMLayer():
 
   def getData(self):
     return [
-        {
-            'type': 'lstm',
-            'params':{
-                
-            }
+      {
+        'type': 'lstm',
+        'params': {
+          'W_i': self.inputParam.w.tolist(),
+          'W_f': self.forgetParam.w.tolist(),
+          'W_c': self.cellParam.w.tolist(),
+          'W_o': self.outputParam.w.tolist(),
+          'U_i': self.inputParam.u.tolist(),
+          'U_f': self.forgetParam.u.tolist(),
+          'U_f': self.forgetParam.u.tolist(),
+          'U_c': self.cellParam.u.tolist(),
+          'U_o': self.outputParam.u.tolist(),
+          'b_i': self.inputParam.b.tolist(),
+          'b_f': self.forgetParam.b.tolist(),
+          'b_c': self.cellParam.b.tolist(),
+          'b_o': self.outputParam.b.tolist()
         }
+      }
     ]
 
 ### TESTING ###

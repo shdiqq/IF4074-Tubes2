@@ -1,9 +1,12 @@
 import pandas as pd
+import numpy as np
 from sklearn import metrics
 from sklearn.model_selection import train_test_split, KFold
 from sklearn.preprocessing import MinMaxScaler
 from function.generateImage import *
 from function.toCategorical import *
+from function.prepareData import *
+from function.errorCalc import *
 
 import os
 import sys
@@ -103,30 +106,89 @@ if __name__ == "__main__":
   # print("\nBest Accuracy:", best_accuracy)
 
   """ TUBES 2 """
+  # Read Data
   train_path = './data/train/Train_stock_market.csv'
   test_path = './data/test/Test_stock_market.csv'
+  df_train = pd.read_csv(train_path, index_col='Date', parse_dates=['Date'])
+  df_test = pd.read_csv(test_path, parse_dates=['Date'])
 
-  df_train = pd.read_csv(train_path, infer_datetime_format=True)
-  df_test = pd.read_csv(test_path, infer_datetime_format=True)
-  dataset = df_train.loc[:, ['Close']].values
-  dataset = dataset.reshape(-1, 1)
+  # Scaling the training set
   scaler = MinMaxScaler(feature_range = (0, 1))
-  data_scaled = scaler.fit_transform(dataset)
+  scaled_data = scaler.fit_transform(df_train[["Low", "Open", "Volume", "High", "Close"]].values)
 
-  X_train = []
-  y_train = []
-  time_step = 10
-  for i in range(len(data_scaled) - time_step - 1):
-      a = data_scaled[i:(i + time_step), 0]
-      X_train.append(a)
-      y_train.append(data_scaled[i + time_step, 0])
-  X_train = np.array(X_train)
-  y_train = np.array(y_train)
-  print("trainX shape: {}\ntrainY shape: {}". format(X_train.shape, y_train.shape))
-  print(f"X_train = {X_train[0]}")
+  # First Model
+  def firstModel(inputShape):
+      model = Sequential()
+    #   model.addLayer(LSTMLayer(inputSize=inputShape[2], nCells=inputShape[1]))
+      # print(inputShape)
+      # print(inputShape[1])
+      # print(inputShape[2])
+      model.addLayer(LSTMLayer(inputSize=inputShape[2], nCells=inputShape[1]))
+      model.addLayer(DenseLayer(numUnit=inputShape[0], activationFunctionName = 'linear'))
+      return model
 
-  modelLSTM = Sequential()
-  modelLSTM.addLayer(LSTMLayer(inputSize=10, nCells=256))
-  modelLSTM.addLayer(DenseLayer(numUnit = 1, activationFunctionName = 'linear'))
-  output = modelLSTM.forward(X_train)
-  print(f"output = {output[0]}")
+  # Define Time Steps List & Predictions
+  time_steps_list = [5]
+  predictions = {}
+
+  for time_steps in time_steps_list:
+    # Prepare train data for the specific time_steps
+    X_train, y_train = prepare_data(scaled_data, time_steps)
+    print("shape", X_train.shape)
+
+    # Create and train the model for the specific time_steps
+    model = firstModel((X_train.shape))
+    output = model.forward(X_train)
+
+    # Predict the test data
+    test_samples = len(df_test)
+    input_seq = scaled_data[-time_steps:]
+    print("X_train")
+    print(X_train)
+    print("input seq:", input_seq)
+    future_preds = []
+
+    print("Output\n", output)
+
+    for i in range(test_samples):
+        print("MASUK KE YANG PREDICT")
+        current_pred = model.forward(np.array([input_seq]))
+        future_preds.append(current_pred)
+        input_seq.append(current_pred)
+
+    future_preds = scaler.inverse_transform(future_preds)
+    predictions[time_steps] = future_preds
+
+    last_time_step = list(predictions.keys())[-1]
+    last_preds = predictions[last_time_step]
+    dates = df_test['Date'].to_list()
+    open_prices = [f"{last_preds[i][0]:.2f}" for i in range(len(dates))]
+    close_prices = [f"{last_preds[i][1]:.2f}" for i in range(len(dates))]
+    high_prices = [f"{last_preds[i][2]:.2f}" for i in range(len(dates))]
+    low_prices = [f"{last_preds[i][3]:.2f}" for i in range(len(dates))]
+    volumes = [f"{last_preds[i][4]:.2f}" for i in range(len(dates))]
+
+    # Create a dataframe with the predicted prices
+    predicted_df = pd.DataFrame({
+        'Date': np.array(dates),
+        'Open': np.array(open_prices),
+        'High': np.array(high_prices),
+        'Low': np.array(low_prices),
+        'Close': np.array(close_prices),
+        'Volume': np.array(volumes)
+    })
+
+    print("predicted_df")
+    print(predicted_df.head())
+    print("df_test")
+    print(df_test.head())
+
+    # Calculate RMSE for each column and store the results in a dictionary
+    errors = {}
+    columns_to_compare = ["Open", "High", "Low", "Close", "Volume"]
+    for column in columns_to_compare:
+        errors[column] = root_mean_squared_error(df_test[column], predicted_df[column])
+
+    # Display the RMSE for each column
+    for column, error in errors.items():
+        print(f"RMSE for {column}: {error}")
