@@ -123,4 +123,10 @@ if __name__ == "__main__":
   X_train = np.array(X_train)
   y_train = np.array(y_train)
   print("trainX shape: {}\ntrainY shape: {}". format(X_train.shape, y_train.shape))
-  print(X_train[0])
+  print(f"X_train = {X_train[0]}")
+
+  modelLSTM = Sequential()
+  modelLSTM.addLayer(LSTMLayer(inputSize=10, nCells=256))
+  modelLSTM.addLayer(DenseLayer(numUnit = 1, activationFunctionName = 'linear'))
+  output = modelLSTM.forward(X_train)
+  print(f"output = {output[0]}")
