@@ -82,6 +82,16 @@ class LSTMLayer():
     output = self.hiddenPrev[-1]
     return output
 
+  def getData(self):
+    return [
+        {
+            'type': 'lstm',
+            'params':{
+                
+            }
+        }
+    ]
+
 ### TESTING ###
 if __name__ == "__main__":
   inputData = np.array([[0.5, 3], [1, 2]])
