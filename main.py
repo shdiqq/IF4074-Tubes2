@@ -6,7 +6,7 @@ from sklearn.preprocessing import MinMaxScaler
 from function.generateImage import *
 from function.toCategorical import *
 from function.prepareData import *
-from function.errorCalc import *
+from function.loss import *
 
 import os
 import sys
