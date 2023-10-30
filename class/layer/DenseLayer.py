@@ -25,6 +25,7 @@ class DenseLayer():
 
     if (self.weight is None) :
       self.weight = np.random.randn(numFeatures, self.numUnit)
+      self.weight = np.clip(self.weight, -1, 1)
     if (self.bias is None) :
       self.bias = np.zeros((self.numUnit,))
 
@@ -35,8 +36,6 @@ class DenseLayer():
       output = sigmoid(output)
     elif (self.activationFunctionName.lower() == 'linear'):
       output = linear(output)
-    # elif (self.activationFunctionName.lower() == 'softmax'):
-    #   output = softmax(output)
 
     self.output = output
     return output
@@ -53,8 +52,6 @@ class DenseLayer():
       dOutput_dNet = sigmoid(self.output, derivative=True)
     elif (self.activationFunctionName.lower() == 'linear'):
       dOutput_dNet = linear(self.output, derivative=True)
-    # elif (self.activationFunctionName.lower() == 'softmax'):
-    #   derivativeValues = softmax(self.output, derivative=True)
 
     deltaError = dError_dOutput * dOutput_dNet
 
@@ -65,10 +62,10 @@ class DenseLayer():
     dError_dOutputBeforeLayer = np.dot(deltaError, self.weight.T)
     return dError_dOutputBeforeLayer
 
-  def updateWeightBias(self, learningRate, momentum):
+  def updateWeightBias(self, learningRate):
     for i in range (len(self.weight)):
-      self.weight[i] = self.weight[i] - ( (momentum * self.weight[i]) + (learningRate * self.deltaWeight[i] * self.inputData[i]) )
-    self.bias = self.bias - ( (momentum * self.bias) + (learningRate * self.deltaBias) )
+      self.weight[i] = self.weight[i] - ( learningRate * self.deltaWeight[i] )
+    self.bias = self.bias - ( learningRate * self.deltaBias )
 
     self.deltaWeight = None
     self.deltaBias = None

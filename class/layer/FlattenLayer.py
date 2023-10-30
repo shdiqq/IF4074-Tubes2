@@ -13,7 +13,7 @@ class FlattenLayer():
   def backward(self, dError_dOutput):
     return dError_dOutput.reshape(self.height, self.weight, self.depth)
 
-  def updateWeightBias(self, learningRate, momentum): 
+  def updateWeightBias(self, learningRate): 
     pass
 
   def getData(self):

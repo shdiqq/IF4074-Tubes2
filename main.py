@@ -21,7 +21,7 @@ from layer.DenseLayer import DenseLayer
 from layer.LSTMLayer import LSTMLayer
 
 if __name__ == "__main__":
-  """ TUBES 1 """
+  # print("TUBES 1")
   # objectLabelDictionary = {
   #   0: 'bear',
   #   1: 'panda'
@@ -29,7 +29,7 @@ if __name__ == "__main__":
   # dataInput, dataInputLabel = generateImage()
   # dataInputLabel = toCategorical(dataInputLabel, 1)
 
-  # # Melakukan pembelajaran dengan skema split train 90% dan test 10%, dan menampilkan kinerja serta confusion matrixnya
+  # # # Melakukan pembelajaran dengan skema split train 90% dan test 10%, dan menampilkan kinerja serta confusion matrixnya
   # print("1. Implement training using 90% train and 10% test split, and show its performance and confusion matrix\n")
   # X_train, X_test, y_train, y_test = train_test_split(dataInput, dataInputLabel, test_size=0.1)
 
@@ -57,17 +57,15 @@ if __name__ == "__main__":
   #   cnn.addLayer(DenseLayer(numUnit = 5, activationFunctionName = 'relu'))
   #   cnn.addLayer(DenseLayer(numUnit = 1, activationFunctionName = 'sigmoid'))
 
-  # cnn.predict(features = X_train, target = y_train, batchSize = 5, epoch = 10, learningRate = 0.5)
-  
+  # cnn.fit(features = X_train, target = y_train, batchSize = 5, epoch = 1, learningRate = 0.5)
+
   # save_model_choice = input("Do you want to save this model? (yes/no): ").lower()
   # if save_model_choice == 'yes':
   #   model_name_to_save = input("Enter the name to save this model: ")
   #   cnn.saveModel(model_name_to_save)
 
-  # output = np.array([])
-  # for data in X_test:
-  #   forwardCNN = cnn.forward(data)
-  #   output = np.append(output, np.rint(forwardCNN))
+  # print("Melakukan prediksi")
+  # output = cnn.predict(X_test)
 
   # print("\nTarget:", y_test)
   # print("Predicted:", output)
@@ -90,12 +88,9 @@ if __name__ == "__main__":
   #   print("Reading (load) model from external file (model.json)")
   #   cnnKfold.loadModel('model')
 
-  #   output = np.array([])
-  #   for data in X_test:
-  #       forward_cnn = cnnKfold.forward(data)
-  #       output = np.append(output, np.rint(forward_cnn))
+  #   cnnKfold.fit(features = X_train, target = y_train, batchSize = 5, epoch = 1, learningRate = 0.5)
+  #   output = cnnKfold.predict(X_test)
     
-  #   cnnKfold.predict(features = X_train, target = y_train, batchSize = 5, epoch = 10, learningRate = 0.5)
   #   accuracy = metrics.accuracy_score(y_test, output)
   #   print("\nAccuracy:", accuracy)
   #   print("Confusion matrix:\n", metrics.confusion_matrix(y_test, output), "\n")
@@ -105,7 +100,7 @@ if __name__ == "__main__":
         
   # print("\nBest Accuracy:", best_accuracy)
 
-  """ TUBES 2 """
+  print("TUBES 2")
   # Read Data
   train_path = './data/train/Train_stock_market.csv'
   test_path = './data/test/Test_stock_market.csv'
@@ -119,12 +114,8 @@ if __name__ == "__main__":
   # First Model
   def firstModel(inputShape):
       model = Sequential()
-    #   model.addLayer(LSTMLayer(inputSize=inputShape[2], nCells=inputShape[1]))
-      # print(inputShape)
-      # print(inputShape[1])
-      # print(inputShape[2])
-      model.addLayer(LSTMLayer(inputSize=inputShape[2], nCells=inputShape[1]))
-      model.addLayer(DenseLayer(numUnit=inputShape[0], activationFunctionName = 'linear'))
+      model.addLayer(LSTMLayer(inputSize=(inputShape), nCells=20, returnSequences=False))
+      model.addLayer(DenseLayer(numUnit=5, activationFunctionName = 'linear'))
       return model
 
   # Define Time Steps List & Predictions
@@ -134,61 +125,42 @@ if __name__ == "__main__":
   for time_steps in time_steps_list:
     # Prepare train data for the specific time_steps
     X_train, y_train = prepare_data(scaled_data, time_steps)
-    print("shape", X_train.shape)
 
     # Create and train the model for the specific time_steps
-    model = firstModel((X_train.shape))
-    output = model.forward(X_train)
-
+    model = firstModel(X_train[0].shape)
+    model.compile(loss="rmse")
+    model.fitForwardOnly(features = X_train, target = y_train, epoch = 5)
+    
     # Predict the test data
     test_samples = len(df_test)
-    input_seq = scaled_data[-time_steps:]
-    print("X_train")
-    print(X_train)
-    print("input seq:", input_seq)
+    input_seq = scaled_data[-time_steps:].tolist()
     future_preds = []
 
-    print("Output\n", output)
-
     for i in range(test_samples):
-        print("MASUK KE YANG PREDICT")
-        current_pred = model.forward(np.array([input_seq]))
-        future_preds.append(current_pred)
-        input_seq.append(current_pred)
-
+      pred = model.predict(np.array([input_seq]))
+      future_preds.append(pred)
+      input_seq.append(pred)
+    
     future_preds = scaler.inverse_transform(future_preds)
     predictions[time_steps] = future_preds
 
-    last_time_step = list(predictions.keys())[-1]
-    last_preds = predictions[last_time_step]
-    dates = df_test['Date'].to_list()
-    open_prices = [f"{last_preds[i][0]:.2f}" for i in range(len(dates))]
-    close_prices = [f"{last_preds[i][1]:.2f}" for i in range(len(dates))]
-    high_prices = [f"{last_preds[i][2]:.2f}" for i in range(len(dates))]
-    low_prices = [f"{last_preds[i][3]:.2f}" for i in range(len(dates))]
-    volumes = [f"{last_preds[i][4]:.2f}" for i in range(len(dates))]
+  ## **Convert to CSV**
+  last_time_step = list(predictions.keys())[-1]
+  last_predictions = predictions[last_time_step]
+  dates = df_test['Date'].tolist()
+  low_prices = [f"{last_predictions[i][0]:.2f}" for i in range(len(dates))]
+  open_prices = [f"{last_predictions[i][1]:.2f}" for i in range(len(dates))]
+  volume_prices = [f"{last_predictions[i][2]:.2f}" for i in range(len(dates))]
+  high_prices = [f"{last_predictions[i][3]:.2f}" for i in range(len(dates))]
+  close_prices = [f"{last_predictions[i][4]:.2f}" for i in range(len(dates))]
 
-    # Create a dataframe with the predicted prices
-    predicted_df = pd.DataFrame({
-        'Date': np.array(dates),
-        'Open': np.array(open_prices),
-        'High': np.array(high_prices),
-        'Low': np.array(low_prices),
-        'Close': np.array(close_prices),
-        'Volume': np.array(volumes)
-    })
-
-    print("predicted_df")
-    print(predicted_df.head())
-    print("df_test")
-    print(df_test.head())
-
-    # Calculate RMSE for each column and store the results in a dictionary
-    errors = {}
-    columns_to_compare = ["Open", "High", "Low", "Close", "Volume"]
-    for column in columns_to_compare:
-        errors[column] = root_mean_squared_error(df_test[column], predicted_df[column])
-
-    # Display the RMSE for each column
-    for column, error in errors.items():
-        print(f"RMSE for {column}: {error}")
+  filePredict = pd.DataFrame({
+      'Date': dates,
+      'Open': open_prices,
+      'High': high_prices,
+      'Low': low_prices,
+      'Close': close_prices,
+      'Volume': volume_prices,
+  })
+  filePredict.to_csv('./data/predict/predict.csv', index=False)
+  filePredict.head()

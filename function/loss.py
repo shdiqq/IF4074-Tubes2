@@ -1,16 +1,20 @@
 import numpy as np
 
 # LOSS FUNCTION
-def sse(target : float, output : float, derivative=False) -> float:
-	""""Untuk linear, sigmoid, dan ReLU, gunakan fungsi loss berupa sum of squared error"""
+def sumSquareError(target, output, derivative=False):
 	if(derivative):
 		return (output - target)
 	else:
 		return ((target - output)**2) / 2
 
-def crossEntropy(target : float, output : float, derivative=False) -> float:
-	"""Untuk softmax, gunakan fungsi loss berupa cross entropy"""
+def crossEntropy(target, output, derivative=False):
 	if(derivative):
 		return -(target / output) + (1 - target) / (1 - output)
 	else:
-		return -(target * np.log(output))
+		return -(target * np.log(output))\
+
+def meanSquareError(target, output):
+    return np.mean((target - output) ** 2)
+
+def rootMeanSquareError(target, output):
+    return np.sqrt(meanSquareError(target, output))

@@ -9,52 +9,41 @@ sys.path.append(mymodule_dir)
 from activation import sigmoid
 
 class LSTMParameter:
-  def __init__(self, inputSize):
-    self.u = np.random.rand(inputSize)
-    self.w = np.random.rand(inputSize)
-    self.b = np.random.rand(inputSize)
+  def __init__(self, nAttributes, nCells):
+    self.u = np.random.rand(nAttributes, nCells)
+    self.w = np.random.rand(nCells, nCells)
+    self.b = np.random.rand(nCells)
 
 class LSTMLayer():
-  def __init__(self, inputSize, nCells, U=None, W=None, b=None):
+  def __init__(self, inputSize, nCells, returnSequences=False):
     self.inputData = None
-    self.inputSize = inputSize
+    self.timeSteps = inputSize[0]
+    self.nAttributes = inputSize[1]
     self.nCells = nCells
-
-    print("Data di LSTM Layer")
-    print(self.inputData)
-    print(self.inputSize)
-    self.cellPrev = np.zeros((nCells+1, inputSize))
-    print(self.cellPrev)
-    self.hiddenPrev = np.zeros((nCells+1, inputSize))
+    self.returnSequences = returnSequences
+    self.cellPrev = np.zeros((self.timeSteps, self.nCells))
+    self.hiddenPrev = np.zeros((self.timeSteps, self.nCells))
 
     # 4 gate param
-    self.forgetParam = LSTMParameter(self.inputSize)
-    print("Forget Param:", self.forgetParam.u, self.forgetParam.w, self.forgetParam.b)
-    self.inputParam = LSTMParameter(self.inputSize)
-    self.cellParam = LSTMParameter(self.inputSize)
-    self.outputParam = LSTMParameter(self.inputSize)
+    self.forgetParam = LSTMParameter(self.nAttributes, self.nCells)
+    self.inputParam = LSTMParameter(self.nAttributes, self.nCells)
+    self.cellParam = LSTMParameter(self.nAttributes, self.nCells)
+    self.outputParam = LSTMParameter(self.nAttributes, self.nCells)
 
   def forgetGate(self, timestep):
-    # sigmoid(inputData * Uf + hiddenPrev * Wf + Bf)
-    print("Forget Param:", self.forgetParam.u, self.forgetParam.w, self.forgetParam.b)
-    print("Input Data:", self.inputData[timestep])
-    print("len Input Data:", len(self.inputData[timestep]))
-    print("Hidden Prev:", self.hiddenPrev[timestep])
-    net_f = np.dot(self.forgetParam.u, self.inputData[timestep]) + np.dot(self.forgetParam.w, self.hiddenPrev[timestep]) + self.forgetParam.b
+    # sigmoid(Uf * inputData + Wf * hiddenPrev + Bf)
+    net_f = np.dot(self.inputData[timestep], self.forgetParam.u) + np.dot(self.hiddenPrev[timestep], self.forgetParam.w) + self.forgetParam.b
     ft = sigmoid(net_f)
-    #print(f"ft={ft}")
     return (ft)
 
   def inputGate(self, timestep):
     # sigmoid(inputData * Ui + hiddenPrev * Wi + Bi)
-    net_i = np.matmul(self.inputParam.u, self.inputData[timestep]) + np.dot(self.inputParam.w, self.hiddenPrev[timestep]) + self.inputParam.b
+    net_i = np.matmul(self.inputData[timestep], self.inputParam.u) + np.dot(self.hiddenPrev[timestep], self.inputParam.w) + self.inputParam.b
     it = sigmoid(net_i)
-    #print(f"it={it}")
 
-    # tanH(inputData * Uc + hiddenPrev * Wc + Bc)
-    net_candidate = np.dot(self.cellParam.u, self.inputData[timestep]) + np.dot(self.cellParam.w, self.hiddenPrev[timestep]) + self.cellParam.b
+    # # tanH(inputData * Uc + hiddenPrev * Wc + Bc)
+    net_candidate = np.dot(self.inputData[timestep], self.cellParam.u) + np.dot(self.hiddenPrev[timestep], self.cellParam.w) + self.cellParam.b
     candidate_t = np.tanh(net_candidate)
-    #print(f"candidate_t={candidate_t}")
     return it, candidate_t
 
   def cellState(self, timestep, ft, it, candidate_t):
@@ -64,9 +53,8 @@ class LSTMLayer():
 
   def outputGate(self, timestep, ct):
     # sigmoid(inputData * Uo + hiddenPrev * Wo + Bo)
-    net_o = np.dot(self.outputParam.u, self.inputData[timestep]) + np.dot(self.outputParam.w, self.hiddenPrev[timestep]) + self.outputParam.b
+    net_o = np.dot(self.inputData[timestep], self.outputParam.u) + np.dot(self.hiddenPrev[timestep], self.outputParam.w) + self.outputParam.b
     ot = sigmoid(net_o)
-    #print(f"ot={ot}")
 
     # output * tanH(cellState)
     ht = np.multiply(ot, np.tanh(ct))
@@ -74,20 +62,19 @@ class LSTMLayer():
   
   def forward(self, inputData):
     self.inputData = inputData
-    for i in range(self.nCells):
+    for i in range(self.timeSteps):
       ft = self.forgetGate(i)
       it, candidate_t = self.inputGate(i)
       ct = self.cellState(i, ft, it, candidate_t)
       ht = self.outputGate(i, ct)
 
-      print(ct)
-      self.cellPrev[i+1] = ct
-    #   print(self.cellPrev[i+1])
-    #   print(f"ct = {self.cellPrev[i+1]}")
-      self.hiddenPrev[i+1] = ht
-      #print(f"ht = {self.hiddenPrev[i+1]}")
+      self.cellPrev[i] = ct
+      self.hiddenPrev[i] = ht
     
-    output = self.hiddenPrev[-1]
+    if (self.returnSequences) :
+      output = self.hiddenPrev
+    else: 
+      output = self.hiddenPrev[-1]
     return output
 
   def getData(self):
@@ -115,7 +102,8 @@ class LSTMLayer():
 ### TESTING ###
 if __name__ == "__main__":
   inputData = np.array([[0.5, 3], [1, 2]])
-  lstmLayer = LSTMLayer(inputSize=2, nCells=2)
+  print(inputData.shape)
+  lstmLayer = LSTMLayer(inputSize=(2,2), nCells=2)
   output = lstmLayer.forward(inputData)
   print("===")
   print(f"output={output}")

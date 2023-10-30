@@ -34,8 +34,8 @@ class ConvolutionalLayer():
     delta_convolutional = self.convolutionStage.backward(delta_detector)
     return delta_convolutional
   
-  def updateWeightBias(self, learningRate, momentum):
-    self.convolutionStage.updateKernelBias(learningRate, momentum)
+  def updateWeightBias(self, learningRate):
+    self.convolutionStage.updateKernelBias(learningRate)
 
   def getData(self):
     pooling_stage = "max_pooling" if self.mode == "max" else "average_pooling" 

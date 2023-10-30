@@ -29,6 +29,7 @@ class ConvolutionalStage():
 
     if (self.kernel is None) :
       self.kernel = np.random.randn(self.numFilter, self.filterSize, self.filterSize, inputDepth)
+      self.kernel = np.clip(self.kernel, -1, 1)
     if (self.bias is None) :
       self.bias = np.zeros((self.numFilter,))
 
@@ -71,7 +72,7 @@ class ConvolutionalStage():
                         
     return dError_dOutputBefore
     
-  def updateKernelBias(self, learningRate, momentum):
+  def updateKernelBias(self, learningRate):
       self.kernel -= learningRate * self.deltaKernel
       self.bias -= learningRate * self.deltaBias
 
