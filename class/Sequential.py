@@ -126,8 +126,7 @@ class Sequential():
     output = np.array([])
     for data in inputTest:
       outputForward = self.forward(data)
-      output = np.append(output, np.rint(outputForward))
-
+      output = np.append(output, outputForward)
     return output
 
 

@@ -11,8 +11,11 @@ from activation import sigmoid
 class LSTMParameter:
   def __init__(self, nAttributes, nCells):
     self.u = np.random.rand(nAttributes, nCells)
+    self.u = np.clip(self.u, -1, 1)
     self.w = np.random.rand(nCells, nCells)
+    self.w = np.clip(self.w, -1, 1)
     self.b = np.random.rand(nCells)
+    self.b = np.clip(self.b, -1, 1)
 
 class LSTMLayer():
   def __init__(self, inputSize, nCells, returnSequences=False):
@@ -21,8 +24,8 @@ class LSTMLayer():
     self.nAttributes = inputSize[1]
     self.nCells = nCells
     self.returnSequences = returnSequences
-    self.cellPrev = np.zeros((self.timeSteps, self.nCells))
-    self.hiddenPrev = np.zeros((self.timeSteps, self.nCells))
+    self.cellPrev = np.zeros((self.timeSteps + 1, self.nCells))
+    self.hiddenPrev = np.zeros((self.timeSteps + 1, self.nCells))
 
     # 4 gate param
     self.forgetParam = LSTMParameter(self.nAttributes, self.nCells)
@@ -62,17 +65,17 @@ class LSTMLayer():
   
   def forward(self, inputData):
     self.inputData = inputData
-    for i in range(self.timeSteps):
-      ft = self.forgetGate(i)
-      it, candidate_t = self.inputGate(i)
-      ct = self.cellState(i, ft, it, candidate_t)
-      ht = self.outputGate(i, ct)
+    for i in range(1, self.timeSteps + 1):
+      ft = self.forgetGate(i-1)
+      it, candidate_t = self.inputGate(i-1)
+      ct = self.cellState(i-1, ft, it, candidate_t)
+      ht = self.outputGate(i-1, ct)
 
       self.cellPrev[i] = ct
       self.hiddenPrev[i] = ht
     
     if (self.returnSequences) :
-      output = self.hiddenPrev
+      output = self.hiddenPrev[1:]
     else: 
       output = self.hiddenPrev[-1]
     return output
@@ -103,7 +106,7 @@ class LSTMLayer():
 if __name__ == "__main__":
   inputData = np.array([[0.5, 3], [1, 2]])
   print(inputData.shape)
-  lstmLayer = LSTMLayer(inputSize=(2,2), nCells=2)
+  lstmLayer = LSTMLayer(inputSize=(2,2), nCells=64)
   output = lstmLayer.forward(inputData)
   print("===")
   print(f"output={output}")
