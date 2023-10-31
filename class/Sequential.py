@@ -168,7 +168,7 @@ class Sequential():
         self.addLayer(LSTMLayer(
           inputSize = data[i]['params']['inputSize'],
           nCells = data[i]['params']['nCells'],
-          returnSequences = data[i]['params']['returnSequences'].lower() == 'true',
+          returnSequences = data[i]['params']['returnSequences'] == 'true',
         ))
     file.close()
 
