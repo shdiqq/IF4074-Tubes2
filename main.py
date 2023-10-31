@@ -119,7 +119,7 @@ if __name__ == "__main__":
       return model
 
   # Define Time Steps List & Predictions
-  time_steps_list = [5]
+  time_steps_list = [10]
   predictions = {}
 
   for time_steps in time_steps_list:
@@ -129,7 +129,8 @@ if __name__ == "__main__":
     # Create and train the model for the specific time_steps
     model = firstModel(X_train[0].shape)
     model.compile(loss="rmse")
-    model.fitForwardOnly(features = X_train, target = y_train, epoch = 1)
+    model.fitForwardOnly(features = X_train, target = y_train, epoch = 5)
+    model.saveModel(f'model_{time_steps}')
     
     # Predict the test data
     test_samples = len(df_test)
@@ -137,6 +138,7 @@ if __name__ == "__main__":
     future_preds = []
 
     for i in range(test_samples):
+      arrpred = input_seq[-time_steps:]
       pred = model.predict(np.array([input_seq[-time_steps:]]))
       future_preds.append(pred)
       input_seq.append(pred)

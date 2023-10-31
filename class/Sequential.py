@@ -164,6 +164,12 @@ class Sequential():
           weight = np.array(data[i]['params']['weight']),
           bias = np.array(data[i]['params']['bias'])
         ))
+      elif (data[i]['type'] == 'lstm'):
+        self.addLayer(LSTMLayer(
+          inputSize = data[i]['params']['inputSize'],
+          nCells = data[i]['params']['nCells'],
+          returnSequences = data[i]['params']['returnSequences'].lower() == 'true',
+        ))
     file.close()
 
 ### TESTING ###

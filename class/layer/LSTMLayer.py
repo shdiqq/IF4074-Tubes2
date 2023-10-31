@@ -20,6 +20,7 @@ class LSTMParameter:
 class LSTMLayer():
   def __init__(self, inputSize, nCells, returnSequences=False):
     self.inputData = None
+    self.inputSize = inputSize
     self.timeSteps = inputSize[0]
     self.nAttributes = inputSize[1]
     self.nCells = nCells
@@ -85,6 +86,9 @@ class LSTMLayer():
       {
         'type': 'lstm',
         'params': {
+          'inputSize': self.inputSize,
+          'nCells': self.nCells,
+          'returnSequences': self.returnSequences,
           'W_i': self.inputParam.w.tolist(),
           'W_f': self.forgetParam.w.tolist(),
           'W_c': self.cellParam.w.tolist(),
