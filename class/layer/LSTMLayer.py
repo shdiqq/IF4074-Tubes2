@@ -105,6 +105,15 @@ class LSTMLayer():
         }
       }
     ]
+  
+  def getName(self):
+    return 'LSTM'
+  
+  def getShapeOutput(self):
+    return (None, self.nCells)
+  
+  def getParameterCount(self):
+    return (self.nAttributes * self.nCells * 4) + (self.nCells * self.nCells * 4) + (self.nCells * 4)
 
 ### TESTING ###
 if __name__ == "__main__":

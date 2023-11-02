@@ -21,84 +21,84 @@ from layer.DenseLayer import DenseLayer
 from layer.LSTMLayer import LSTMLayer
 
 if __name__ == "__main__":
-  # print("TUBES 1")
-  # objectLabelDictionary = {
-  #   0: 'bear',
-  #   1: 'panda'
-  # }
-  # dataInput, dataInputLabel = generateImage()
-  # dataInputLabel = toCategorical(dataInputLabel, 1)
+  print("TUBES 1")
+  objectLabelDictionary = {
+    0: 'bear',
+    1: 'panda'
+  }
+  dataInput, dataInputLabel = generateImage()
+  dataInputLabel = toCategorical(dataInputLabel, 1)
 
-  # # # Melakukan pembelajaran dengan skema split train 90% dan test 10%, dan menampilkan kinerja serta confusion matrixnya
-  # print("1. Implement training using 90% train and 10% test split, and show its performance and confusion matrix\n")
-  # X_train, X_test, y_train, y_test = train_test_split(dataInput, dataInputLabel, test_size=0.1)
+  # # Melakukan pembelajaran dengan skema split train 90% dan test 10%, dan menampilkan kinerja serta confusion matrixnya
+  print("1. Implement training using 90% train and 10% test split, and show its performance and confusion matrix\n")
+  X_train, X_test, y_train, y_test = train_test_split(dataInput, dataInputLabel, test_size=0.1)
 
-  # cnn = Sequential()
-  # load_model_choice = input("Do you want to load a pre-existing model? (yes/no): ").lower()
-  # if load_model_choice == 'yes':
-  #   while True:
-  #     model_name = input("Enter the model name to load: ")
-  #     filename = os.path.join(script_dir, 'model', model_name + '.json')
-  #     if os.path.exists(filename):
-  #       break
-  #     else:
-  #       print("Model not found. Please try again.")
-  #       continue
-  #   print()
-  #   cnn.loadModel(model_name)
-  # else:
-  #   cnn.addLayer(ConvolutionalLayer(inputSize=dataInput[0].shape, filterSize = 4, numFilter = 3, mode = 'max', padding = 0, stride = 4))
-  #   cnn.addLayer(ConvolutionalLayer(filterSize = 4, numFilter = 6, mode = 'average', padding = 0, stride = 1))
-  #   cnn.addLayer(FlattenLayer())
-  #   cnn.addLayer(DenseLayer(numUnit = 300, activationFunctionName = 'relu'))
-  #   cnn.addLayer(DenseLayer(numUnit = 150, activationFunctionName = 'relu'))
-  #   cnn.addLayer(DenseLayer(numUnit = 50, activationFunctionName = 'relu'))
-  #   cnn.addLayer(DenseLayer(numUnit = 25, activationFunctionName = 'relu'))
-  #   cnn.addLayer(DenseLayer(numUnit = 5, activationFunctionName = 'relu'))
-  #   cnn.addLayer(DenseLayer(numUnit = 1, activationFunctionName = 'sigmoid'))
+  cnn = Sequential()
+  load_model_choice = input("Do you want to load a pre-existing model? (yes/no): ").lower()
+  if load_model_choice == 'yes':
+    while True:
+      model_name = input("Enter the model name to load: ")
+      filename = os.path.join(script_dir, 'model', model_name + '.json')
+      if os.path.exists(filename):
+        break
+      else:
+        print("Model not found. Please try again.")
+        continue
+    print()
+    cnn.loadModel(model_name)
+  else:
+    cnn.addLayer(ConvolutionalLayer(inputSize=dataInput[0].shape, filterSize = 4, numFilter = 3, mode = 'max', padding = 0, stride = 4))
+    cnn.addLayer(FlattenLayer())
+    cnn.addLayer(DenseLayer(numUnit = 300, activationFunctionName = 'relu'))
+    cnn.addLayer(DenseLayer(numUnit = 150, activationFunctionName = 'relu'))
+    cnn.addLayer(DenseLayer(numUnit = 50, activationFunctionName = 'relu'))
+    cnn.addLayer(DenseLayer(numUnit = 25, activationFunctionName = 'relu'))
+    cnn.addLayer(DenseLayer(numUnit = 5, activationFunctionName = 'relu'))
+    cnn.addLayer(DenseLayer(numUnit = 1, activationFunctionName = 'sigmoid'))
 
-  # cnn.fit(features = X_train, target = y_train, batchSize = 5, epoch = 1, learningRate = 0.5)
+  cnn.fit(features = X_train, target = y_train, batchSize = 5, epoch = 1, learningRate = 0.5)
+  cnn.printSummary()
 
-  # save_model_choice = input("Do you want to save this model? (yes/no): ").lower()
-  # if save_model_choice == 'yes':
-  #   model_name_to_save = input("Enter the name to save this model: ")
-  #   cnn.saveModel(model_name_to_save)
+  save_model_choice = input("Do you want to save this model? (yes/no): ").lower()
+  if save_model_choice == 'yes':
+    model_name_to_save = input("Enter the name to save this model: ")
+    cnn.saveModel(model_name_to_save)
 
-  # print("Melakukan prediksi")
-  # output = cnn.predict(X_test)
+  print("Melakukan prediksi")
+  output = cnn.predictCNN(X_test)
 
-  # print("\nTarget:", y_test)
-  # print("Predicted:", output)
-  # print("Accuracy:", metrics.accuracy_score(y_test, output))
-  # print("Confusion matrix:\n", metrics.confusion_matrix(y_test, output))
+  print("\nTarget:", y_test)
+  print("Predicted:", output)
+  print("Accuracy:", metrics.accuracy_score(y_test, output))
+  print("Confusion matrix:\n", metrics.confusion_matrix(y_test, output))
 
-  # # Melakukan pembelajaran dengan skema 10-fold cross validation, dan menampilkan kinerjanya.
-  # print("\n2. Implement training using 10-fold cross validation, and show its performance.\n")
-  # kf = KFold(n_splits=10,shuffle=True)
-  # best_accuracy = 0
-  # best_model = None
-  # i = 1
-  # for train_index, test_index in kf.split(dataInput):
-  #   print("SPLIT - ", i)
-  #   X_train, X_test = dataInput[train_index], dataInput[test_index]
-  #   dataInputLabel = np.array(dataInputLabel)
-  #   y_train, y_test = dataInputLabel[train_index], dataInputLabel[test_index]
+  # Melakukan pembelajaran dengan skema 10-fold cross validation, dan menampilkan kinerjanya.
+  print("\n2. Implement training using 10-fold cross validation, and show its performance.\n")
+  kf = KFold(n_splits=10,shuffle=True)
+  best_accuracy = 0
+  best_model = None
+  i = 1
+  for train_index, test_index in kf.split(dataInput):
+    print("SPLIT - ", i)
+    X_train, X_test = dataInput[train_index], dataInput[test_index]
+    dataInputLabel = np.array(dataInputLabel)
+    y_train, y_test = dataInputLabel[train_index], dataInputLabel[test_index]
 
-  #   cnnKfold = Sequential()
-  #   print("Reading (load) model from external file (model.json)")
-  #   cnnKfold.loadModel('model')
+    cnnKfold = Sequential()
+    print("Reading (load) model from external file (model.json)")
+    cnnKfold.loadModel('model')
 
-  #   cnnKfold.fit(features = X_train, target = y_train, batchSize = 5, epoch = 1, learningRate = 0.5)
-  #   output = cnnKfold.predict(X_test)
+    cnnKfold.fit(features = X_train, target = y_train, batchSize = 5, epoch = 1, learningRate = 0.5)
+    output = cnnKfold.predictCNN(X_test)
     
-  #   accuracy = metrics.accuracy_score(y_test, output)
-  #   print("\nAccuracy:", accuracy)
-  #   print("Confusion matrix:\n", metrics.confusion_matrix(y_test, output), "\n")
-  #   if accuracy > best_accuracy:
-  #       best_accuracy = accuracy
-  #   i = i + 1
+    accuracy = metrics.accuracy_score(y_test, output)
+    print("\nAccuracy:", accuracy)
+    print("Confusion matrix:\n", metrics.confusion_matrix(y_test, output), "\n")
+    if accuracy > best_accuracy:
+        best_accuracy = accuracy
+    i = i + 1
         
-  # print("\nBest Accuracy:", best_accuracy)
+  print("\nBest Accuracy:", best_accuracy)
 
   print("TUBES 2")
   # Read Data
@@ -114,7 +114,7 @@ if __name__ == "__main__":
   # First Model
   def firstModel(inputShape):
       model = Sequential()
-      model.addLayer(LSTMLayer(inputSize=(inputShape), nCells=20, returnSequences=False))
+      model.addLayer(LSTMLayer(inputSize=(inputShape), nCells=64, returnSequences=False))
       model.addLayer(DenseLayer(numUnit=5, activationFunctionName = 'linear'))
       return model
 
@@ -130,6 +130,7 @@ if __name__ == "__main__":
     model = firstModel(X_train[0].shape)
     model.compile(loss="rmse")
     model.fitForwardOnly(features = X_train, target = y_train, epoch = 5)
+    model.printSummary()
     model.saveModel(f'model_{time_steps}')
     
     # Predict the test data
@@ -139,7 +140,7 @@ if __name__ == "__main__":
 
     for i in range(test_samples):
       arrpred = input_seq[-time_steps:]
-      pred = model.predict(np.array([input_seq[-time_steps:]]))
+      pred = model.predictLSTM(np.array([input_seq[-time_steps:]]))
       future_preds.append(pred)
       input_seq.append(pred)
     

@@ -63,6 +63,16 @@ class ConvolutionalLayer():
       }
     ]
   
+  def getName(self):
+    return 'Conv2D'
+  
+  def getShapeOutput(self):
+    outputHeight, outputWidth, inputDepth = self.poolingStage.getOutputShape()
+    return (None, outputHeight, outputWidth, inputDepth)
+  
+  def getParameterCount(self):
+    return self.numFilter * ((self.filterSize * self.filterSize * self.inputSize[2]) + 1)
+  
 ### TESTING ###
 if __name__ == "__main__":
   matrix = np.array(
@@ -92,10 +102,11 @@ if __name__ == "__main__":
   newMatrix = convolutionalLayer.forward(matrix[0])
   print(newMatrix.shape)
   print("=====")
-  convolutionalLayer2 = ConvolutionalLayer(filterSize = 2, numFilter = 4, mode='max', padding = 0, stride = 1)
+  convolutionalLayer2 = ConvolutionalLayer(inputSize = newMatrix.shape, filterSize = 2, numFilter = 4, mode='max', padding = 0, stride = 1)
   newMatrix1 = convolutionalLayer2.forward(newMatrix)
   print(newMatrix1.shape)
   print("=====")
+  print(convolutionalLayer2.getShapeOutput())
   dE_dO = np.array(
     [
       [

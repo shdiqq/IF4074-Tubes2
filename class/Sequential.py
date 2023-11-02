@@ -122,13 +122,19 @@ class Sequential():
       print(f"    {i+1}     |   {avgLoss:.5f}   |")
       print("-------------------------")
 
-  def predict(self, inputTest):
+  def predictCNN(self, inputTest):
+    output = np.array([])
+    for data in inputTest:
+      outputForward = self.forward(data)
+      output = np.append(output, np.rint(outputForward))
+    return output
+
+  def predictLSTM(self, inputTest):
     output = np.array([])
     for data in inputTest:
       outputForward = self.forward(data)
       output = np.append(output, outputForward)
     return output
-
 
   def saveModel(self, filename):
     file = open(f'./model/{filename}.json', 'w')
@@ -171,6 +177,24 @@ class Sequential():
           returnSequences = data[i]['params']['returnSequences'] == 'true',
         ))
     file.close()
+
+  def printSummary(self):
+    print("Model: Sequential")
+    print("================================================================================")
+    print("Layer (type)              Output Shape                  Param ")
+    print("================================================================================")
+    count_params = 0
+    for i in range(len(self.layers)):
+      if self.layers[i].getName() == 'Conv':
+        print(f"{self.layers[i].getName()}\t\t\t  {self.layers[i].getShapeOutput()}\t\t{self.layers[i].getParameterCount()}")
+      else:
+        print(f"{self.layers[i].getName()}\t\t\t  {self.layers[i].getShapeOutput()}\t\t\t{self.layers[i].getParameterCount()}")
+      count_params += self.layers[i].getParameterCount()
+      print("================================================================================")
+    print("Total params:", count_params)
+    print("Trainable params:", count_params)
+    print("Non-trainable params:", 0)
+    print("================================================================================")
 
 ### TESTING ###
 if __name__ == "__main__":

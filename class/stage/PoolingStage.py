@@ -67,6 +67,11 @@ class PoolingStage():
 
   def modeAverageBackward(self, dError_dOutput, filterSize):
     return dError_dOutput / (filterSize * filterSize)
+  
+  def getOutputShape(self):
+    inputHeight, inputWidth, inputDepth = self.inputData.shape
+    outputHeight, outputWidth = spatialSize(inputHeight, inputWidth, self.filterSize, 0, self.stride)
+    return outputHeight, outputWidth, inputDepth
 
 ### TESTING ###
 if __name__ == "__main__":

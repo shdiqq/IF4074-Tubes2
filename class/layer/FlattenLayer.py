@@ -23,6 +23,15 @@ class FlattenLayer():
         'params': {}
       }
     ]
+  
+  def getName(self):
+    return 'Flatten'
+  
+  def getShapeOutput(self):
+    return (None, self.height * self.weight * self.depth)
+  
+  def getParameterCount(self):
+    return 0
 
 ### TESTING ###
 if __name__ == "__main__":

@@ -82,6 +82,15 @@ class DenseLayer():
         }
       }
     ]
+  
+  def getName(self):
+    return 'Dense'
+  
+  def getShapeOutput(self):
+    return (None, self.numUnit)
+  
+  def getParameterCount(self):
+    return (len(self.inputData) * self.numUnit) + self.numUnit
 
 ### TESTING ###
 if __name__ == "__main__":
