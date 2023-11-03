@@ -14,7 +14,4 @@ def crossEntropy(target, output, derivative=False):
 		return -(target * np.log(output))\
 
 def meanSquareError(target, output):
-    return np.mean((target - output) ** 2)
-
-def rootMeanSquareError(target, output):
-    return np.sqrt(meanSquareError(target, output))
+    return (target - output) ** 2

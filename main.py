@@ -29,7 +29,7 @@ if __name__ == "__main__":
   dataInput, dataInputLabel = generateImage()
   dataInputLabel = toCategorical(dataInputLabel, 1)
 
-  # # Melakukan pembelajaran dengan skema split train 90% dan test 10%, dan menampilkan kinerja serta confusion matrixnya
+  # Melakukan pembelajaran dengan skema split train 90% dan test 10%, dan menampilkan kinerja serta confusion matrixnya
   print("1. Implement training using 90% train and 10% test split, and show its performance and confusion matrix\n")
   X_train, X_test, y_train, y_test = train_test_split(dataInput, dataInputLabel, test_size=0.1)
 
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     cnn.saveModel(model_name_to_save)
 
   print("Melakukan prediksi")
-  output = cnn.predictCNN(X_test)
+  output = cnn.predict(X_test)
 
   print("\nTarget:", y_test)
   print("Predicted:", output)
@@ -89,7 +89,7 @@ if __name__ == "__main__":
     cnnKfold.loadModel('model')
 
     cnnKfold.fit(features = X_train, target = y_train, batchSize = 5, epoch = 1, learningRate = 0.5)
-    output = cnnKfold.predictCNN(X_test)
+    output = cnnKfold.predict(X_test)
     
     accuracy = metrics.accuracy_score(y_test, output)
     print("\nAccuracy:", accuracy)
@@ -140,7 +140,7 @@ if __name__ == "__main__":
 
     for i in range(test_samples):
       arrpred = input_seq[-time_steps:]
-      pred = model.predictLSTM(np.array([input_seq[-time_steps:]]))
+      pred = model.predict(np.array([input_seq[-time_steps:]]))
       future_preds.append(pred)
       input_seq.append(pred)
     

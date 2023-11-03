@@ -8,7 +8,7 @@ script_dir = os.path.dirname(__file__)
 mymodule_dir = os.path.join(script_dir, '..', 'function')
 sys.path.append(mymodule_dir)
 
-from loss import sumSquareError, crossEntropy, meanSquareError, rootMeanSquareError
+from loss import sumSquareError, crossEntropy, meanSquareError
 
 from layer.ConvolutionalLayer import ConvolutionalLayer
 from layer.FlattenLayer import FlattenLayer
@@ -50,13 +50,16 @@ class Sequential():
     elif (self.loss == "mse"):
       for i in range (len(target)):
         loss = loss + meanSquareError(target[i], output[i])
+      loss = loss/len(target)
     elif (self.loss == "rmse"):
       for i in range (len(target)):
-        loss = loss + rootMeanSquareError(target[i], output[i])
+        loss = loss + meanSquareError(target[i], output[i])
+      loss = loss/len(target)
+      loss = np.sqrt(loss)
     else :
       for i in range (len(target)):
         loss = loss + sumSquareError(target[i], output[i])
-    return loss/len(target)
+    return loss
   
   def calculateDerivativeError(self, output, target):
     derivativeError = []
@@ -80,8 +83,11 @@ class Sequential():
       while ( idxReadInputData != len(features) ):
         for j in range (batchSize):
           # Proses Forward Propagation
-          output = self.forward(features[idxReadInputData])
-          labelOutput = np.rint(np.append(labelOutput, output))
+          if (self.layers[-1].activationFunctionName == "sigmoid" and self.layers[-1].numUnit == 1) :
+            output = np.round(self.forward(features[idxReadInputData]))
+          else :
+            output = self.forward(features[idxReadInputData])
+          labelOutput = np.append(labelOutput, output)
           labelTarget = np.append(labelTarget, target[idxReadInputData])
           sumLoss += self.calculateLoss(output, target[idxReadInputData])
 
@@ -110,8 +116,11 @@ class Sequential():
       idxReadInputData = 0
       while ( idxReadInputData != len(features) ):
         # Proses Forward Propagation
-        output = self.forward(features[idxReadInputData])
-        labelOutput = np.rint(np.append(labelOutput, output))
+        if (self.layers[-1].activationFunctionName == "sigmoid" and self.layers[-1].numUnit == 1) :
+          output = np.round(self.forward(features[idxReadInputData]))
+        else :
+          output = self.forward(features[idxReadInputData])
+        labelOutput = np.append(labelOutput, output)
         labelTarget = np.append(labelTarget, target[idxReadInputData])
         sumLoss += self.calculateLoss(output, target[idxReadInputData])
 
@@ -122,17 +131,13 @@ class Sequential():
       print(f"    {i+1}     |   {avgLoss:.5f}   |")
       print("-------------------------")
 
-  def predictCNN(self, inputTest):
+  def predict(self, inputTest):
     output = np.array([])
     for data in inputTest:
-      outputForward = self.forward(data)
-      output = np.append(output, np.rint(outputForward))
-    return output
-
-  def predictLSTM(self, inputTest):
-    output = np.array([])
-    for data in inputTest:
-      outputForward = self.forward(data)
+      if (self.layers[-1].activationFunctionName == "sigmoid" and self.layers[-1].numUnit == 1) :
+        outputForward = np.round(self.forward(data))
+      else :
+        outputForward = self.forward(data)
       output = np.append(output, outputForward)
     return output
 
